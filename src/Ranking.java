@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,8 +25,7 @@ public class Ranking extends JPanel{
     public Ranking(FrameCard frame) throws Error, IOException { //constructor
         this.frame = frame;
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        this.readFile = new File("ranking.txt");
-        this.reader = new Scanner(readFile);
+        tryReadFile("ranking.txt");
         this.writeFile = new File("new.txt");
         if(writeFile.createNewFile()){
         }
@@ -45,6 +45,28 @@ public class Ranking extends JPanel{
             }
         }
         setBackground(Color.white);
+    }
+
+    private void tryReadFile(String filename) throws IOException {
+        this.readFile = new File(filename);
+        try {
+            this.reader = new Scanner(readFile);
+        } catch (FileNotFoundException e) {
+            try {
+                readFile.createNewFile();
+            } catch (IOException ex) {
+                throw new RuntimeException("cannot create new file");
+            }
+            FileWriter rankingWriter = new FileWriter(readFile);
+            String[] names = {"a", "b", "c", "d", "e"};
+            int[] scores = {3000, 2500, 2000, 1500, 1000};
+            for (int i = 0; i < names.length; i++) {
+                rankingWriter.append(names[i] + "\n");
+                rankingWriter.append(scores[i] + "\n");
+            }
+            rankingWriter.close();
+            this.reader = new Scanner(readFile);
+        }
     }
 
     private String findKey(int a){ // to find nkey to value

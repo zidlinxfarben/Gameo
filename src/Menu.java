@@ -63,13 +63,19 @@ public class Menu extends JPanel{
         this.end.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) { //exiting program
-                music.close();
+                try {
+                    music.close();
+                }catch (NullPointerException ignored){
+
+                }
                 try {
                     audioStreamMusic.close();
                     Menu.this.rank.ending(); //save score
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(frame, ex, "exit error", JOptionPane.ERROR_MESSAGE);
                     throw new RuntimeException(ex);
+                } catch (NullPointerException ignored){
+
                 }
                 System.exit(0);
             }
@@ -97,11 +103,15 @@ public class Menu extends JPanel{
         frame.rank(); //view rank
     }
 
-    public void framing() throws LineUnavailableException, IOException { //starts music
+    public void framing() throws LineUnavailableException{ //starts music
         try {
             music.open(audioStreamMusic);
             music.start();
         }catch(FileNotFoundException ignored){
+
+        }catch (IOException ignored){
+
+        }catch (NullPointerException ignored){
 
         }
     }
