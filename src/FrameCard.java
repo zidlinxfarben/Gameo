@@ -6,12 +6,12 @@ import java.awt.*;
 import java.io.IOException;
 
 public class FrameCard extends JFrame {
-    private CardLayout cards;
-    private Menu menu;
-    private Game game;
-    private Ranking ranking;
-    private JPanel cPane;
-    private int current = 0; //control which card is active
+    private final CardLayout cards;
+    private final Menu menu;
+    private final Game game;
+    private final Ranking ranking;
+    private final JPanel cPane;
+    //control which card is active
 
     public FrameCard(String title) throws HeadlessException, IOException, UnsupportedAudioFileException, LineUnavailableException { //constructor
         super(title);
@@ -28,7 +28,7 @@ public class FrameCard extends JFrame {
         getContentPane().add(cPane, BorderLayout.NORTH);
         add(cPane);
     }
-    public void setting() throws LineUnavailableException, IOException { //adding cards
+    public void setting() throws LineUnavailableException { //adding cards
         cPane.add(menu, "menu");
         cPane.add(ranking, "ranking");
         cPane.add(game, "game");
@@ -42,20 +42,17 @@ public class FrameCard extends JFrame {
     }
 
     public void playing() { // to run game and switch card to view game
-        current = 2;
         cPane.remove(menu); // swing problem here
         cards.show(cPane, "game");
         game.run();
     }
 
     public void rank() { //to view rank
-        current = 1;
         cards.show(cPane, "ranking");
         ranking.viewRank();
     }
 
     public void returnState(){ //to view menu
-        current = 0;
         cards.show(cPane, "menu");
     }
 }

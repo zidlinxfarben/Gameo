@@ -17,9 +17,9 @@ public class ArrowAction extends AbstractAction {
         Person person = game.player;
         if(person == null) return;
         if (command.equalsIgnoreCase("UpArrow")) { // up key pressed
-            Person.keyPressed();
+            person.keyPressed();
         }else if(command.equalsIgnoreCase("UpArrowReleased")){ // up key pressed
-            Person.keyReleased();
+            person.keyReleased();
         }
     }
 }
