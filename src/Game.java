@@ -43,8 +43,8 @@ public class Game extends JPanel{
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0), "UpArrow");
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0, true), "UpArrowReleased");
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, true), "UpArrowReleased");
-        am.put("UpArrow", new ArrowAction("UpArrow")); // what to send to ArrowAction
-        am.put("UpArrowReleased", new ArrowAction("UpArrowReleased"));
+        am.put("UpArrow", new ArrowAction("UpArrow", this)); // what to send to ArrowAction
+        am.put("UpArrowReleased", new ArrowAction("UpArrowReleased", this));
         setBackground(background);
         setFocusable(true); // to always listen
         this.game = this;
