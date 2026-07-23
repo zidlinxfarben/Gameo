@@ -16,7 +16,7 @@ public class Platforms {
         this.blank = blank;
         this.game = game;
         this.r = r;
-        this.y = this.r.nextInt(50, 570); // where can appear
+        this.y = this.r.nextInt(50, 560); // where can appear
         if(blank){ //is it space
             this.width = this.r.nextInt(30, 100);
         }
