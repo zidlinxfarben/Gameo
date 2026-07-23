@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 public class Ranking extends JPanel{
@@ -37,7 +38,16 @@ public class Ranking extends JPanel{
             a = reader.nextLine();
             if(reader.hasNextLine()){
                 c=reader.nextLine();
-                b = Integer.parseInt(c);
+                a = a.trim();
+                c = c.trim();
+                if(a.equals("") || c.equals("")){
+                    throw new IOException("File corrupted");
+                }
+                try {
+                    b = Integer.parseInt(c);
+                } catch (NumberFormatException e) {
+                    throw new IOException("File corrupted");
+                }
                 map.put(a,b);
             }
             else{
@@ -48,6 +58,10 @@ public class Ranking extends JPanel{
     }
 
     private void tryReadFile(String filename) throws IOException {
+        /**
+         * try to read file
+         * @param filename file name
+         */
         this.readFile = new File(filename);
         try {
             this.reader = new Scanner(readFile);
@@ -69,7 +83,11 @@ public class Ranking extends JPanel{
         }
     }
 
-    private String findKey(int a){ // to find nkey to value
+    private String findKey(int a){
+        /**
+         * find key by value
+         * @param a value
+         */
         for(Map.Entry u : map.entrySet()){
             if(Objects.equals(a, u.getValue())){
                 return (String) u.getKey();
@@ -78,9 +96,18 @@ public class Ranking extends JPanel{
         return null;
     }
 
-    private static Integer[] sortValues(){ // sorting too view in order
+    private static Integer[] sortValues(){
+        /**
+         * sort values
+         */
         Integer[] values = new Integer[5];
         int j = 0;
+        if(map.size() > 5){
+            throw new RuntimeException("Too many scores");
+        }
+        if(map.size() < 5){
+            throw new RuntimeException("Not enough scores");
+        }
         for(int i : map.values()){
             values[j] = i;
             j++;
@@ -89,7 +116,10 @@ public class Ranking extends JPanel{
         return values;
     }
 
-    public void viewRank(){ //viewing on JFrame
+    public void viewRank(){
+        /**
+         * view rank via jframe
+         */
         int rank = 1;
         int y = 30;
         Integer[] values = sortValues();
@@ -115,7 +145,13 @@ public class Ranking extends JPanel{
         repaint();
     }
 
-    private static void scoring(Integer[] value, int score, int place){ //add new score
+    private static void scoring(Integer[] value, int score, int place){
+        /**
+         * add new score
+         * @param value sorted values
+         * @param score new score
+         * @param place place on the leaderboard
+         */
         int helpingPoint;
         for(; place < value.length; place++){
             helpingPoint = value[place];
@@ -124,7 +160,11 @@ public class Ranking extends JPanel{
         }
     }
 
-    public void score(int score){ // what is the place
+    public void score(int score){
+        /**
+         * where is the new score on the leaderboard?
+         * @param score new score
+         */
         Integer[] values = sortValues();
         int newPlace = 0;
         boolean newHighScore = false;
@@ -140,17 +180,26 @@ public class Ranking extends JPanel{
             newScore(values, score);
         }
     }
-    private boolean inScores(String a, Integer[] values){  //is this name in scores
+    private boolean inScores(String name, Integer[] values){
+        /**
+         * is there the same score under the same name?
+         * @param name name
+         */
         for(int i : values){
-            if(map.get(a) == i){
+            if(map.get(name).equals(i)){
                 return true;
             }
         }
         return false;
     }
-    private String SameNaming(String name, int number){ // to remove bug with same names
-        for(String a : map.keySet()){
-            if(a.equals(name)){
+    private String SameNaming(String name, int number){
+        /**
+         * if there is a same name, add number to the end of name
+         * @param name name
+         * @param number number
+         */
+        for(String nameKey : map.keySet()){
+            if(nameKey.equals(name)){
                 name = "" + name + number;
                 number++;
                 name = SameNaming(name, number);
@@ -158,7 +207,12 @@ public class Ranking extends JPanel{
         }
         return name;
     }
-    private void newScore(Integer[] values, int score){ //to remove last place and add new name to list
+    private void newScore(Integer[] values, int score) {
+        /**
+         * create as new score
+         * @param values sorted values
+         * @param score new score
+         */
         String b = null;
         for(String a : map.keySet()){
             if(!inScores(a, values)){
@@ -169,10 +223,14 @@ public class Ranking extends JPanel{
             map.remove(b);
         }
         String name=JOptionPane.showInputDialog(frame,"Winner name"); //view dialog to write name
-        if(name == null){
-            name = "Anon"; // cannot have name which value is null
+        name = name.trim();
+        if(name.equals("")){
+            name = "Anon";
         }
-        SameNaming(name, 1); // is there same name? also adds another char
+        if(name.indexOf('\n') != -1){
+            name = name.substring(0, name.indexOf('\n'));
+        }
+        SameNaming(name, 1); // is there a same name? also adds another char
         map.put(name, score);
     }
     public void ending() throws IOException { // save score
@@ -187,7 +245,7 @@ public class Ranking extends JPanel{
         reader.close();
         writer.close();
         readFile.delete();
-        Files.move(writeFile.toPath(), writeFile.toPath().resolveSibling("ranking.txt"));
+        Files.move(writeFile.toPath(), writeFile.toPath().resolveSibling("ranking.txt"), StandardCopyOption.REPLACE_EXISTING);
     }
     private void exiting(){
         removeAll();
