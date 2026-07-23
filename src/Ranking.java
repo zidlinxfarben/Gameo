@@ -223,6 +223,9 @@ public class Ranking extends JPanel{
             map.remove(b);
         }
         String name=JOptionPane.showInputDialog(frame,"Winner name"); //view dialog to write name
+        if(name == null){
+            name = "Anon";
+        }
         name = name.trim();
         if(name.equals("")){
             name = "Anon";

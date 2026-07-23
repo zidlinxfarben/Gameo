@@ -92,6 +92,12 @@ public class Menu extends JPanel{
             this.music.loop(Clip.LOOP_CONTINUOUSLY); //music for menu
         }catch (FileNotFoundException ignored){
 
+        }catch (IOException ignored){
+            System.out.println("IOException");
+        }catch (UnsupportedAudioFileException ignored){
+            System.out.println("UnsupportedAudioFileException");
+        }catch (LineUnavailableException ignored){
+            System.out.println("LineUnavailableException");
         }
     }
 

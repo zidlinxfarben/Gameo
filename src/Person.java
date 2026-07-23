@@ -48,7 +48,6 @@ public class Person {
                     JOptionPane.ERROR_MESSAGE);
             down = true;
             up = 0;
-            Thread.sleep(100);
         }
         if(falling()){
             y = (int)(y + up); // falling down
