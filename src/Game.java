@@ -14,8 +14,8 @@ import java.util.Random;
 
 public class Game extends JPanel{
     public Random r;
-    public ArrayList<Platforms> list = new ArrayList<Platforms>();
-    public ArrayList<CannonBall> balls = new ArrayList<CannonBall>();
+    public ArrayList<Platforms> list = new ArrayList<>();
+    public ArrayList<CannonBall> balls = new ArrayList<>();
     private boolean LastFullVisible = false;
     public boolean blanking = true; // create space or platform
     public Person player;
@@ -48,75 +48,65 @@ public class Game extends JPanel{
         setBackground(background);
         setFocusable(true); // to always listen
         this.game = this;
-        this.timer = new Timer(10, new ActionListener() { // special Thread to play game
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(player.isClose()){ // game ended?
-                    rank.score(score); // is this score new highscore
-                    score = 0; //reset
-                    speed = 1; //reset
-                    blanking = true;
-                    for (Platforms a : list){ //reset
-                        a.setBlank(true);
-                    }
-                    Iterator<CannonBall> ir = balls.iterator();
-                    while(ir.hasNext()){
-                        CannonBall c = ir.next();
-                        c.setNoBlank(false);
-                    }
-                    frame.setMenu(); // to set back menu to frame
-                    frame.returnState(); // to view menu
-                    timer.stop(); // end Thread
+        // special Thread to play game
+        this.timer = new Timer(10, e -> {
+            if(player.isClose()){ // game ended?
+                rank.score(score); // is this score new highscore
+                score = 0; //reset
+                speed = 1; //reset
+                blanking = true;
+                for (Platforms a : list){ //reset
+                    a.setBlank(true);
                 }
-                if(i>= 1000){
-                    speed++;
-                    i = 0;
+                for (CannonBall c : balls) {
+                    c.setNoBlank(false);
                 }
-                if(LastFullVisible){ //last space or platform fully visible
-                    int a = r.nextInt(4);
-                    Platforms b;
-                    if(a>0){
-                        b = new Platforms(blanking,game, r);
+                frame.setMenu(); // to set back menu to frame
+                frame.returnState(); // to view menu
+                timer.stop(); // end Thread
+            }
+            if(i>= 1000){
+                speed++;
+                i = 0;
+            }
+            if(LastFullVisible){ //last space or platform fully visible
+                int a = r.nextInt(4);
+                Platforms b;
+                if(a>0){
+                    b = new Platforms(blanking,game, r);
+                }
+                else{
+                    if(score>750){
+                        b = new MovingPlatforms(blanking,game, r);
                     }
                     else{
-                        if(score>750){
-                            b = new MovingPlatforms(blanking,game, r);
-                        }
-                        else{
-                            b = new Platforms(blanking,game, r);
-                        }
-                    }
-                    list.add(b);
-                    LastFullVisible = false;
-                    blanking = !blanking;
-                }
-                if(score>1500){
-                    if(r.nextInt(150)== 2){
-                        CannonBall ball = new CannonBall(game, r);
-                        balls.add(ball);
+                        b = new Platforms(blanking,game, r);
                     }
                 }
-                Iterator<Platforms> it = list.iterator(); //to delete platform when it isn't on screen
-                while (it.hasNext()){
-                    Platforms c = it.next();
-                    LastFullVisible = c.fullVisible(); //only last get saved
-                    if(c.unVisible()){
-                        it.remove();
-                    }
-                }
-                Iterator<CannonBall> in = balls.iterator();
-                while(in.hasNext()){
-                    CannonBall c = in.next();
-                    if(c.outOfBonds()){
-                        in.remove();
-                    }
-                }
-                revalidate();
-                repaint();
-                move();
-                i++;
-                score++;
+                list.add(b);
+                LastFullVisible = false;
+                blanking = !blanking;
             }
+            if(score>1500){
+                if(r.nextInt(150)== 2){
+                    CannonBall ball = new CannonBall(game, r);
+                    balls.add(ball);
+                }
+            }
+            Iterator<Platforms> it = list.iterator(); //to delete platform when it isn't on screen
+            while (it.hasNext()){
+                Platforms c = it.next();
+                LastFullVisible = c.fullVisible(); //only last get saved
+                if(c.unVisible()){
+                    it.remove();
+                }
+            }
+            balls.removeIf(CannonBall::outOfBonds);
+            revalidate();
+            repaint();
+            move();
+            i++;
+            score++;
         });
         this.timer.setRepeats(true); // to repeat infinitely
     }

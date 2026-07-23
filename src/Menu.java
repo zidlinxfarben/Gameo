@@ -65,7 +65,7 @@ public class Menu extends JPanel{
             public void actionPerformed(ActionEvent e) { //exiting program
                 try {
                     music.close();
-                }catch (NullPointerException ignored){
+                }catch (Exception ignored){
 
                 }
                 try {
@@ -74,9 +74,7 @@ public class Menu extends JPanel{
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(frame, ex, "exit error", JOptionPane.ERROR_MESSAGE);
                     throw new RuntimeException(ex);
-                } catch (NullPointerException ignored){
-
-                }
+                } catch (Exception ignored) {}
                 System.exit(0);
             }
         });
