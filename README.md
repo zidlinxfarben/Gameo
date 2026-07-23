@@ -1,3 +1,5 @@
+V. 0.0.3
+
 A small platform game. It is still in alpha stage of development.
 
 How to play?
