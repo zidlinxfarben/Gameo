@@ -20,6 +20,9 @@ public class MovingPlatforms extends Platforms{
 
     @Override
     public void move(){
+        /**
+         * move platform
+         */
         if(y - speed < 35 && speed < 0){
             speed = -speed;
         }
@@ -31,6 +34,9 @@ public class MovingPlatforms extends Platforms{
     }
 
     public void paint(Graphics2D g){
+        /**
+         * paint platform
+         */
         if(!blank) { //it isn't only space
             g.setColor(Color.blue);
             g.fillRect(x, y, width, height);

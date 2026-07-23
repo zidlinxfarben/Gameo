@@ -8,17 +8,18 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 public class Ranking extends JPanel{
-    private FrameCard frame;
+    private final FrameCard frame;
     private File readFile;
     public File writeFile;
     private Scanner reader;
-    private JLabel label;
-    private FileWriter writer;
+    private final FileWriter writer;
     public String name;
     public static HashMap<String, Integer> map = new HashMap<>(); //here score
     public Button end =  new Button("Exit");
@@ -28,8 +29,7 @@ public class Ranking extends JPanel{
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         tryReadFile("ranking.txt");
         this.writeFile = new File("new.txt");
-        if(writeFile.createNewFile()){
-        }
+        writeFile.createNewFile();
         this.writer = new FileWriter(writeFile);
         String a;
         String c;
@@ -40,7 +40,7 @@ public class Ranking extends JPanel{
                 c=reader.nextLine();
                 a = a.trim();
                 c = c.trim();
-                if(a.equals("") || c.equals("")){
+                if(a.isEmpty() || c.isEmpty()){
                     throw new IOException("File corrupted");
                 }
                 try {
@@ -59,7 +59,7 @@ public class Ranking extends JPanel{
 
     private void tryReadFile(String filename) throws IOException {
         /**
-         * try to read file
+         * try to read a file
          * @param filename file name
          */
         this.readFile = new File(filename);
@@ -125,18 +125,16 @@ public class Ranking extends JPanel{
         Integer[] values = sortValues();
         Font font = new Font("Serif", 0, 42);
         for(int i : values){
-            label = new JLabel(rank + ". " + findKey(i) + "   " + i, SwingConstants.CENTER);
+            JLabel label = new JLabel(rank + ". " + findKey(i) + "   " + i, SwingConstants.CENTER);
             label.setBounds(370, y, 60, 30);
             label.setFont(font);
             add(label);
             y = y + 50;
             rank++;
         }
-        this.end.addActionListener(new ActionListener() { // exit button
-            @Override
-            public void actionPerformed(ActionEvent e) { //exiting program
-                exiting();
-            }
+        // exit button
+        this.end.addActionListener(_ -> { //exiting program
+            exiting();
         });
         this.end.setFont(font);
         this.end.setBounds(370, 280, 60, 30);
@@ -194,13 +192,13 @@ public class Ranking extends JPanel{
     }
     private String SameNaming(String name, int number){
         /**
-         * if there is a same name, add number to the end of name
+         * if there is a same name, add a number to the end of the name
          * @param name name
          * @param number number
          */
         for(String nameKey : map.keySet()){
             if(nameKey.equals(name)){
-                name = "" + name + number;
+                name = name + number;
                 number++;
                 name = SameNaming(name, number);
             }
@@ -223,8 +221,11 @@ public class Ranking extends JPanel{
             map.remove(b);
         }
         String name=JOptionPane.showInputDialog(frame,"Winner name"); //view dialog to write name
+        if(name == null){
+            name = "Anon";
+        }
         name = name.trim();
-        if(name.equals("")){
+        if(name.isEmpty()){
             name = "Anon";
         }
         if(name.indexOf('\n') != -1){
@@ -235,17 +236,20 @@ public class Ranking extends JPanel{
     }
     public void ending() throws IOException { // save score
         Integer[] values = sortValues();
-        String s;
-        boolean a = false;
-        for(int i : values){
-            s = findKey(i);
+        for(int i : values) {
+            String s = findKey(i);
             writer.write(s + "\n");
             writer.write(i + "\n");
         }
         reader.close();
         writer.close();
-        readFile.delete();
-        Files.move(writeFile.toPath(), writeFile.toPath().resolveSibling("ranking.txt"), StandardCopyOption.REPLACE_EXISTING);
+        Path target = readFile.toPath(); // ranking.txt
+        try {
+            Files.move(writeFile.toPath(), target,
+                    StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } catch (AtomicMoveNotSupportedException e) {
+            Files.move(writeFile.toPath(), target, StandardCopyOption.REPLACE_EXISTING);
+        }
     }
     private void exiting(){
         removeAll();

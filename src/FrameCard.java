@@ -1,24 +1,22 @@
 
 import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 
 public class FrameCard extends JFrame {
-    private CardLayout cards;
-    private Menu menu;
-    private Game game;
-    private Ranking ranking;
-    private JPanel cPane;
-    private int current = 0; //control which card is active
+    private final CardLayout cards;
+    private final Menu menu;
+    private final Game game;
+    private final Ranking ranking;
+    private final JPanel cPane;
 
-    public FrameCard(String title) throws HeadlessException, IOException, UnsupportedAudioFileException, LineUnavailableException { //constructor
+    public FrameCard(String title) throws HeadlessException, IOException { //constructor
         super(title);
         this.cPane = new JPanel();
         this.ranking = new Ranking(this);
         this.game = new Game(ranking, this);
-        this.menu = new Menu(this,game, ranking);
+        this.menu = new Menu(this, ranking);
         cards = new CardLayout();
         cPane.setLayout(cards);
         setSize(800, 600); //size
@@ -28,34 +26,46 @@ public class FrameCard extends JFrame {
         getContentPane().add(cPane, BorderLayout.NORTH);
         add(cPane);
     }
-    public void setting() throws LineUnavailableException, IOException { //adding cards
+    public void setting() throws LineUnavailableException { //adding cards
+        /**
+         * sets cards
+         */
         cPane.add(menu, "menu");
         cPane.add(ranking, "ranking");
         cPane.add(game, "game");
         cards.first(cPane);
-        menu.framing(); //start menu
+        menu.start_music(); //start menu
     }
 
 
     public void setMenu(){
+        /**
+         * sets menu card
+         */
         cPane.add(menu, "menu");
     }
 
-    public void playing() { // to run game and switch card to view game
-        current = 2;
+    public void playing() {
+        /**
+         * sets game card and starts game
+         */
         cPane.remove(menu); // swing problem here
         cards.show(cPane, "game");
         game.run();
     }
 
-    public void rank() { //to view rank
-        current = 1;
+    public void rank() {
+        /**
+         * sets a ranking card and starts viewRank
+         */
         cards.show(cPane, "ranking");
         ranking.viewRank();
     }
 
-    public void returnState(){ //to view menu
-        current = 0;
+    public void returnState(){
+        /**
+         * view menu
+         */
         cards.show(cPane, "menu");
     }
 }

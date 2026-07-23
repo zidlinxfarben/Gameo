@@ -1,7 +1,6 @@
 
 
 import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
@@ -11,44 +10,47 @@ public class Person {
     public int y = 280;
     private final int width = 10;
     private final int height = 20; // 1st position
-    private static double up = 0;
-    private static boolean down = true; //can fall?
-    private static Game game;
-    private static int moving = 0;
-    private boolean close = false;
-    private static Person person;
+    private double up = 0;
+    private boolean down = true; //can fall?
+    private final Game game;
+    private int moving = 0;
+    private boolean died = false;
 
-    public Person(Game game) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+    public Person(Game game) {
         this.game = game;
-        this.person = this;
     }
 
-    public boolean isClose() { //getter
-        return close;
+    public boolean isDead() { //getter
+        return died;
     }
 
-    public static void keyPressed(){ //if jumping key is click
-        if(!falling()) { //if isn't in air
+    public void keyPressed(){
+        /**
+         * checking if the jumping key is pressed and if a person is not falling
+         */
+        if(!falling()) { //if not in air
             up = -2;
             down = false;
         }
     }
 
-    public static void keyReleased(){ //if jumping key is realased
+    public void keyReleased(){ //if jumping key is released
         down = true;
     } //now it can fall
 
-    public void move() throws LineUnavailableException, IOException, InterruptedException { //moving
+    public void move() throws LineUnavailableException, IOException, InterruptedException {
+        /**
+         * moves a person and check if the person died
+         */
         moving = 0;
-        if(((y >= 540 || y<= -height)&&!close)||(shoted()&&!close)){ // is it out of screen
-            close = true; // to end game
+        if(((y >= 540 || y<= -height)&&!died)||(shot()&&!died)){ // is it out of screen? is it shot?
+            died = true; // to end game
             JOptionPane.showMessageDialog(game,
                     "Game Over  your score is " + game.score +  "!",
                     "Game over!",
                     JOptionPane.ERROR_MESSAGE);
             down = true;
             up = 0;
-            Thread.sleep(100);
         }
         if(falling()){
             y = (int)(y + up); // falling down
@@ -66,13 +68,19 @@ public class Person {
     }
 
     public Rectangle getBounds(){
+        /**
+         * get bounds
+         */
         return new Rectangle(x,y,width,height);
     }
 
-    private static boolean falling(){ //if it isn't standing on platform
+    private boolean falling(){
+        /**
+         * check if a person is falling
+         */
         for(Platforms a : game.list){
             if(!a.isBlank()) {
-                if (a.getBounds().intersects(person.getBounds())) {
+                if (a.getBounds().intersects(this.getBounds())) {
                     moving = a.getSpeed();
                     return false;
                 }
@@ -80,16 +88,22 @@ public class Person {
         }
         return true;
     }
-    private static boolean shoted(){
+    private boolean shot(){
+        /**
+         * check if a person is shot
+         */
         for(CannonBall a : game.balls){
-            if(a.getBounds().intersects(person.getBounds())){
+            if(a.getBounds().intersects(this.getBounds())){
                 return true;
             }
         }
         return false;
     }
 
-    public void paint(Graphics2D g){ //animating
+    public void paint(Graphics2D g){
+        /**
+         * paint person
+         */
         g.setColor(Color.RED);
         g.fillRect(x, y, width, height);
     }
