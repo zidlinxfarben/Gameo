@@ -38,7 +38,16 @@ public class Ranking extends JPanel{
             a = reader.nextLine();
             if(reader.hasNextLine()){
                 c=reader.nextLine();
-                b = Integer.parseInt(c);
+                a = a.trim();
+                c = c.trim();
+                if(a.equals("") || c.equals("")){
+                    throw new IOException("File corrupted");
+                }
+                try {
+                    b = Integer.parseInt(c);
+                } catch (NumberFormatException e) {
+                    throw new IOException("File corrupted");
+                }
                 map.put(a,b);
             }
             else{
@@ -196,7 +205,7 @@ public class Ranking extends JPanel{
     }
     private void newScore(Integer[] values, int score) {
         /**
-         * create new score
+         * create as new score
          * @param values sorted values
          * @param score new score
          */
@@ -210,8 +219,12 @@ public class Ranking extends JPanel{
             map.remove(b);
         }
         String name=JOptionPane.showInputDialog(frame,"Winner name"); //view dialog to write name
-        if(name == null){
-            name = "Anon"; // cannot have name which value is null
+        name = name.trim();
+        if(name.equals("")){
+            name = "Anon";
+        }
+        if(name.indexOf('\n') != -1){
+            name = name.substring(0, name.indexOf('\n'));
         }
         SameNaming(name, 1); // is there a same name? also adds another char
         map.put(name, score);
