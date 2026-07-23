@@ -70,11 +70,12 @@ public class Menu extends JPanel{
                 }
                 try {
                     audioStreamMusic.close();
-                    Menu.this.rank.ending(); //save score
-                } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(frame, ex, "exit error", JOptionPane.ERROR_MESSAGE);
-                    throw new RuntimeException(ex);
                 } catch (Exception ignored) {}
+                try {
+                    Menu.this.rank.ending();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
                 System.exit(0);
             }
         });

@@ -8,7 +8,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 
@@ -238,18 +240,21 @@ public class Ranking extends JPanel{
     }
     public void ending() throws IOException { // save score
         Integer[] values = sortValues();
-        String s;
-        boolean a = false;
         for(int i : values){
-            s = findKey(i);
+            System.out.println(i);
+            String s = findKey(i);
             writer.write(s + "\n");
             writer.write(i + "\n");
         }
         reader.close();
         writer.close();
-        readFile.delete();
-        Files.move(writeFile.toPath(), writeFile.toPath().resolveSibling("ranking.txt"), StandardCopyOption.REPLACE_EXISTING);
-        writeFile.delete();
+        Path target = readFile.toPath(); // ranking.txt
+        try {
+            Files.move(writeFile.toPath(), target,
+                    StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } catch (AtomicMoveNotSupportedException e) {
+            Files.move(writeFile.toPath(), target, StandardCopyOption.REPLACE_EXISTING);
+        }
     }
     private void exiting(){
         removeAll();
