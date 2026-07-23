@@ -249,6 +249,7 @@ public class Ranking extends JPanel{
         writer.close();
         readFile.delete();
         Files.move(writeFile.toPath(), writeFile.toPath().resolveSibling("ranking.txt"), StandardCopyOption.REPLACE_EXISTING);
+        writeFile.delete();
     }
     private void exiting(){
         removeAll();
