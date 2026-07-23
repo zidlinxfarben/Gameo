@@ -2,7 +2,6 @@ import javax.swing.*;
 
 
 void main() {
-    // write your code here
     FrameCard frame = null; // because of catching
     try {
         frame = new FrameCard("Gameo"); // create Frame

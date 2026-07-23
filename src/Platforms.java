@@ -17,7 +17,7 @@ public class Platforms {
         this.game = game;
         this.r = r;
         this.y = this.r.nextInt(50, 560); // where can appear
-        if(blank){ //is it space
+        if(blank){ //is it space?
             this.width = this.r.nextInt(30, 100);
         }
         else {
@@ -39,36 +39,57 @@ public class Platforms {
     } // is it space?
 
     public void setBlank(boolean blank) {
+        /**
+         * set if the platform is space or not
+         */
         this.blank = blank;
     }
 
     public void paint(Graphics2D g){
-        if(!blank) { //it isn't only space
+        /**
+         * paint platform
+         */
+        if(!blank) { //if it isn't space
             g.setColor(Color.gray);
             g.fillRect(x, y, width, height);
         }
     }
 
-    public void move(){ //moving with it
+    public void move(){
+        /**
+         * move platform to the left
+         */
         x = x - game.speed;
     }
 
     public Rectangle getBounds(){
+        /**
+         * get bounds
+         */
         return new Rectangle(x,y,width,height);
-    } //to get where it is
+    }
 
-    public boolean fullVisible(){ // is it appeared on screen in full size
+    public boolean fullVisible(){
+        /**
+         * sets fullVisibility to true if the platform is fully visible
+         */
         if(x + width < 800 && !fullVisibility){
             this.fullVisibility = true;
             return true;
         }
         return false;
     }
-    public boolean unVisible(){ // is it disappeared from screen? (to delete it)
+    public boolean notVisible(){
+        /**
+         *  Dit it get out of the screen? 1st platform only
+         */
         return x + width <= 0;
     }
 
     public int getSpeed(){
+        /**
+         * compatibility function
+         */
         return 0;
     }
 }

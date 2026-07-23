@@ -3,8 +3,6 @@
 import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,75 +14,61 @@ public class Menu extends JPanel{
     private final FrameCard frame;
     private  Clip music = null;
     private AudioInputStream audioStreamMusic;
-    private final Game game;
     private final Ranking rank;
-    private Long currentFrame;
-    private File musicFile = null;
 
 
-
-    public Menu(FrameCard frame, Game game, Ranking rank) throws UnsupportedAudioFileException, IOException, LineUnavailableException { //construct Class
+    public Menu(FrameCard frame, Ranking rank) { //construct Class
         this.frame = frame; // getting frame
-        this.game = game;// center locations
         this.rank = rank;
         Font font = new Font("Serif", 0, 42);
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        this.start.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // add func to run game
-                try {
-                    performing(); //plays the game
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(frame,ex, "error", JOptionPane.INFORMATION_MESSAGE);
-                    throw new RuntimeException(ex);
-                }
+        this.start.addActionListener(_ -> {
+            // add func to run game
+            try {
+                performing(); //plays the game
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(frame,ex, "error", JOptionPane.INFORMATION_MESSAGE);
+                throw new RuntimeException(ex);
             }
         });
         this.start.setFont(font);
         this.start.setBounds(370, 105, 60, 30);
         this.start.setBackground(Color.CYAN);
         this.add(this.start);
-        this.score.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    scoring(); //view score
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(frame,ex, "error", JOptionPane.INFORMATION_MESSAGE);
-                    throw new RuntimeException(ex);
-                }
+        this.score.addActionListener(_ -> {
+            try {
+                scoring(); //view score
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(frame,ex, "error", JOptionPane.INFORMATION_MESSAGE);
+                throw new RuntimeException(ex);
             }
         });
         this.score.setFont(font);
         this.score.setBounds(370, 225, 60, 30);
         this.score.setBackground(Color.CYAN);
         this.add(this.score);
-        this.end.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) { //exiting program
-                try {
-                    music.close();
-                }catch (Exception ignored){
+        this.end.addActionListener(_ -> { //exiting program
+            try {
+                music.close();
+            }catch (Exception ignored){
 
-                }
-                try {
-                    audioStreamMusic.close();
-                } catch (Exception ignored) {}
-                try {
-                    Menu.this.rank.ending();
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-                System.exit(0);
             }
+            try {
+                audioStreamMusic.close();
+            } catch (Exception ignored) {}
+            try {
+                Menu.this.rank.ending();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            System.exit(0);
         });
         this.end.setFont(font);
         this.end.setBounds(370, 345, 60, 30);
         this.end.setBackground(Color.CYAN);
         this.add(this.end);
         try {
-            this.musicFile = new File("track_2.wav").getAbsoluteFile();
+            File musicFile = new File("track_2.wav").getAbsoluteFile();
             this.audioStreamMusic = AudioSystem.getAudioInputStream(musicFile); // don't work with only "track_2.wav"
             DataLine.Info info = new DataLine.Info(Clip.class, audioStreamMusic.getFormat());
             this.music = (Clip) AudioSystem.getLine(info);
@@ -100,23 +84,28 @@ public class Menu extends JPanel{
         }
     }
 
-    private void performing() throws InterruptedException, UnsupportedAudioFileException, LineUnavailableException, IOException {
-        frame.playing(); //start game
+    private void performing(){
+        /**
+         * start game
+         */
+        frame.playing();
     }
 
-    private void scoring() throws Exception {
-        frame.rank(); //view rank
+    private void scoring(){
+        /**
+         * view score
+         */
+        frame.rank();
     }
 
-    public void framing() throws LineUnavailableException{ //starts music
+    public void start_music() throws LineUnavailableException{
+        /**
+         * start music
+         */
         try {
             music.open(audioStreamMusic);
             music.start();
-        }catch(FileNotFoundException ignored){
-
-        }catch (IOException ignored){
-
-        }catch (NullPointerException ignored){
+        } catch(NullPointerException | IOException ignored){
 
         }
     }

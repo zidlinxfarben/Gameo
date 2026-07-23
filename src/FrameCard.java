@@ -1,6 +1,5 @@
 
 import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
@@ -11,14 +10,13 @@ public class FrameCard extends JFrame {
     private final Game game;
     private final Ranking ranking;
     private final JPanel cPane;
-    //control which card is active
 
-    public FrameCard(String title) throws HeadlessException, IOException, UnsupportedAudioFileException, LineUnavailableException { //constructor
+    public FrameCard(String title) throws HeadlessException, IOException { //constructor
         super(title);
         this.cPane = new JPanel();
         this.ranking = new Ranking(this);
         this.game = new Game(ranking, this);
-        this.menu = new Menu(this,game, ranking);
+        this.menu = new Menu(this, ranking);
         cards = new CardLayout();
         cPane.setLayout(cards);
         setSize(800, 600); //size
@@ -29,30 +27,45 @@ public class FrameCard extends JFrame {
         add(cPane);
     }
     public void setting() throws LineUnavailableException { //adding cards
+        /**
+         * sets cards
+         */
         cPane.add(menu, "menu");
         cPane.add(ranking, "ranking");
         cPane.add(game, "game");
         cards.first(cPane);
-        menu.framing(); //start menu
+        menu.start_music(); //start menu
     }
 
 
     public void setMenu(){
+        /**
+         * sets menu card
+         */
         cPane.add(menu, "menu");
     }
 
-    public void playing() { // to run game and switch card to view game
+    public void playing() {
+        /**
+         * sets game card and starts game
+         */
         cPane.remove(menu); // swing problem here
         cards.show(cPane, "game");
         game.run();
     }
 
-    public void rank() { //to view rank
+    public void rank() {
+        /**
+         * sets a ranking card and starts viewRank
+         */
         cards.show(cPane, "ranking");
         ranking.viewRank();
     }
 
-    public void returnState(){ //to view menu
+    public void returnState(){
+        /**
+         * view menu
+         */
         cards.show(cPane, "menu");
     }
 }
