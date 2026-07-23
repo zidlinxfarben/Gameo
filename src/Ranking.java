@@ -180,9 +180,13 @@ public class Ranking extends JPanel{
             newScore(values, score);
         }
     }
-    private boolean inScores(String a, Integer[] values){  //is this name in scores
+    private boolean inScores(String name, Integer[] values){
+        /**
+         * is there the same score under the same name?
+         * @param name name
+         */
         for(int i : values){
-            if(map.get(a).equals(i)){
+            if(map.get(name).equals(i)){
                 return true;
             }
         }
