@@ -1,4 +1,4 @@
-V. 0.0.3
+V. 0.0.3.1
 
 A small platform game. It is still in alpha stage of development.
 
