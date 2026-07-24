@@ -2,8 +2,6 @@
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -13,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.List;
 
 public class Ranking extends JPanel{
     private final FrameCard frame;
@@ -21,8 +20,10 @@ public class Ranking extends JPanel{
     private Scanner reader;
     private final FileWriter writer;
     public String name;
-    public static HashMap<String, Integer> map = new HashMap<>(); //here score
     public Button end =  new Button("Exit");
+    public static List<Entry> scores = new ArrayList<>();
+    private static final int MAX_ENTRIES = 5;
+
 
     public Ranking(FrameCard frame) throws Error, IOException { //constructor
         this.frame = frame;
@@ -34,23 +35,17 @@ public class Ranking extends JPanel{
         String a;
         String c;
         int b;
+        scores.clear();
         while (reader.hasNext()){
             a = reader.nextLine();
             if(reader.hasNextLine()){
-                c=reader.nextLine();
+                c = reader.nextLine().trim();
                 a = a.trim();
-                c = c.trim();
-                if(a.isEmpty() || c.isEmpty()){
-                    throw new IOException("File corrupted");
-                }
-                try {
-                    b = Integer.parseInt(c);
-                } catch (NumberFormatException e) {
-                    throw new IOException("File corrupted");
-                }
-                map.put(a,b);
-            }
-            else{
+                if(a.isEmpty() || c.isEmpty()) throw new IOException("File corrupted");
+                try { b = Integer.parseInt(c); }
+                catch (NumberFormatException e) { throw new IOException("File corrupted"); }
+                scores.add(new Entry(a, b));
+            } else {
                 throw new IOException("File corrupted");
             }
         }
@@ -83,37 +78,9 @@ public class Ranking extends JPanel{
         }
     }
 
-    private String findKey(int a){
-        /**
-         * find key by value
-         * @param a value
-         */
-        for(Map.Entry u : map.entrySet()){
-            if(Objects.equals(a, u.getValue())){
-                return (String) u.getKey();
-            }
-        }
-        return null;
-    }
 
-    private static Integer[] sortValues(){
-        /**
-         * sort values
-         */
-        Integer[] values = new Integer[5];
-        int j = 0;
-        if(map.size() > 5){
-            throw new RuntimeException("Too many scores");
-        }
-        if(map.size() < 5){
-            throw new RuntimeException("Not enough scores");
-        }
-        for(int i : map.values()){
-            values[j] = i;
-            j++;
-        }
-        Arrays.sort(values, Collections.reverseOrder());
-        return values;
+    private static void sortDescending(){
+        scores.sort((x, y) -> Integer.compare(y.score, x.score));
     }
 
     public void viewRank(){
@@ -122,10 +89,9 @@ public class Ranking extends JPanel{
          */
         int rank = 1;
         int y = 30;
-        Integer[] values = sortValues();
         Font font = new Font("Serif", 0, 42);
-        for(int i : values){
-            JLabel label = new JLabel(rank + ". " + findKey(i) + "   " + i, SwingConstants.CENTER);
+        for(Entry e : scores){
+            JLabel label = new JLabel(rank + ". " + e.name + "   " + e.score, SwingConstants.CENTER);
             label.setBounds(370, y, 60, 30);
             label.setFont(font);
             add(label);
@@ -143,103 +109,45 @@ public class Ranking extends JPanel{
         repaint();
     }
 
-    private static void scoring(Integer[] value, int score, int place){
-        /**
-         * add new score
-         * @param value sorted values
-         * @param score new score
-         * @param place place on the leaderboard
-         */
-        int helpingPoint;
-        for(; place < value.length; place++){
-            helpingPoint = value[place];
-            value[place] = score;
-            score = helpingPoint;
-        }
-    }
 
-    public void score(int score){
+    public void score(int scored){
         /**
          * where is the new score on the leaderboard?
          * @param score new score
          */
-        Integer[] values = sortValues();
-        int newPlace = 0;
-        boolean newHighScore = false;
-        for(int i : values){
-            if(score > i){ // if place was found
-                newHighScore = true;
-                scoring(values, score, newPlace); //add new score
-                break;
-            }
-            newPlace++;
-        }
-        if(newHighScore){
-            newScore(values, score);
+        sortDescending();
+        boolean isHighScore = scores.size() < MAX_ENTRIES
+                || scored > scores.get(scores.size() - 1).score;
+        if(isHighScore) {
+            newScore(scored);
         }
     }
-    private boolean inScores(String name, Integer[] values){
-        /**
-         * is there the same score under the same name?
-         * @param name name
-         */
-        for(int i : values){
-            if(map.get(name).equals(i)){
-                return true;
-            }
-        }
-        return false;
-    }
-    private String SameNaming(String name, int number){
-        /**
-         * if there is a same name, add a number to the end of the name
-         * @param name name
-         * @param number number
-         */
-        for(String nameKey : map.keySet()){
-            if(nameKey.equals(name)){
-                name = name + number;
-                number++;
-                name = SameNaming(name, number);
-            }
-        }
-        return name;
-    }
-    private void newScore(Integer[] values, int score) {
+
+    private void newScore(int score) {
         /**
          * create as new score
-         * @param values sorted values
          * @param score new score
          */
-        String b = null;
-        for(String a : map.keySet()){
-            if(!inScores(a, values)){
-                b = a;
-            }
-        }
-        if(b != null) {
-            map.remove(b);
-        }
-        String name=JOptionPane.showInputDialog(frame,"Winner name"); //view dialog to write name
-        if(name == null){
-            name = "Anon";
-        }
+        String name = JOptionPane.showInputDialog(frame, "Winner name");
+        if(name == null) name = "Anon";
         name = name.trim();
-        if(name.isEmpty()){
-            name = "Anon";
+        if(name.isEmpty()) name = "Anon";
+        int nl = name.indexOf('\n');
+        if(nl != -1){
+            name = name.substring(0, nl);
         }
-        if(name.indexOf('\n') != -1){
-            name = name.substring(0, name.indexOf('\n'));
+        name = name.replaceAll("\\s","_");
+        scores.add(new Entry(name, score));
+        sortDescending();
+        while(scores.size() > MAX_ENTRIES) {
+            scores.remove(scores.size() - 1);        // drop the lowest
         }
-        SameNaming(name, 1); // is there a same name? also adds another char
-        map.put(name, score);
     }
     public void ending() throws IOException { // save score
-        Integer[] values = sortValues();
-        for(int i : values) {
-            String s = findKey(i);
-            writer.write(s + "\n");
-            writer.write(i + "\n");
+        sortDescending();
+        for(Entry e : scores){
+            writer.write(e.name + "\n");
+            writer.write(e.score + "\n");
         }
         reader.close();
         writer.close();
@@ -254,5 +162,13 @@ public class Ranking extends JPanel{
     private void exiting(){
         removeAll();
         frame.returnState();
+    }
+    public static class Entry {
+        /**
+         * entry in the ranking
+         */
+        public final String name;
+        public final int score;
+        public Entry(String name, int score){ this.name = name; this.score = score; }
     }
 }
